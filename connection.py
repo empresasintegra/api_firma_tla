@@ -48,7 +48,7 @@ def create_partners(signing_parties, uid, password, models):
     for party in signing_parties:
         existing = models.execute_kw(db, uid, password, 'res.partner', 'search', [[('email', '=', party.email)]])
         if not existing:
-            partner_id = models.execute_kw(db, uid, password, 'res.partner', 'create', [party.dict()])
+            partner_id = models.execute_kw(db, uid, password, 'res.partner', 'create', [party.model_dump()])
         else:
             partner_id = existing[0]
         partners.append(partner_id)
