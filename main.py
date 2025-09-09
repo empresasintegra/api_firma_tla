@@ -46,7 +46,7 @@ def recuperacion_manual(id: int = Query(..., description="ID de la firma a recup
         }
 
         # notificar_firma(payload)
-        return {"message": "Recuperación manual procesada exitosamente."}
+        return {"message": "Recuperación manual procesada exitosamente.","data":payload}
 
     except Exception as e:
         import logging
