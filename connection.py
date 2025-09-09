@@ -14,7 +14,6 @@ password = settings.ODOO_PASSWORD
 url = settings.ODOO_URL
 
 def authenticate():
-    print('authenticatetud_firma')
     """
     Se autentica contra el servidor Odoo usando las credenciales del .env.
 
@@ -31,9 +30,8 @@ def authenticate():
     return uid # Devuelve el uid
 
 def create_partners(signing_parties, uid, password, models):
-    print('create_partners')
     """
-    Crea los partners (firmantes) en Odoo si no existen.
+    Crea o actualiza los partners (firmantes) en Odoo usando el RUT (vat) como identificador único.
 
     Args:
         signing_parties (List[SigningParty]): Lista de firmantes.
@@ -45,17 +43,46 @@ def create_partners(signing_parties, uid, password, models):
         List[int]: IDs de los partners en Odoo.
     """
     partners = []
+
     for party in signing_parties:
-        existing = models.execute_kw(db, uid, password, 'res.partner', 'search', [[('email', '=', party.email)]])
+        data_to_write = party.model_dump()
+        rut = data_to_write.get('vat')
+
+        if not rut:
+            raise ValueError("Cada firmante debe tener un RUT (campo 'vat').")
+
+        # Buscar por vat (RUT)
+        existing = models.execute_kw(db, uid, password, 'res.partner', 'search_read', [[('vat', '=', rut)]],
+            {'fields': ['id', 'name', 'email', 'display_name', 'vat'], 'limit': 1}
+        )
+
         if not existing:
-            partner_id = models.execute_kw(db, uid, password, 'res.partner', 'create', [party.model_dump()])
+            # Crear si no existe
+            partner_id = models.execute_kw(db, uid, password, 'res.partner', 'create', [data_to_write])
         else:
-            partner_id = existing[0]
+            # Si existe, verificar si hay cambios
+            partner = existing[0]
+            changes = {}
+
+            for field in ['name', 'email', 'display_name', 'vat']:
+                new_value = data_to_write.get(field)
+                if new_value and new_value != partner.get(field):
+                    changes[field] = new_value
+
+            if changes:
+                models.execute_kw(
+                    db, uid, password,
+                    'res.partner', 'write',
+                    [[partner['id']], changes]
+                )
+
+            partner_id = partner['id']
+
         partners.append(partner_id)
+
     return partners
 
 def create_tag(tag, uid, password, models):
-    print('create_tag')
     """
     Crea una etiqueta para el template si no existe.
 
@@ -76,7 +103,6 @@ def create_tag(tag, uid, password, models):
     return tag_id
 
 def create_attachment(document_base64, uid, password, models):
-    print('create_attachment')
     """
     Crea un attachment en Odoo a partir de un documento codificado en base64.
 
@@ -208,7 +234,6 @@ def create_template(subject, attachment_id, signing_parties, pages,
     return template_id
 
 def create_signature_request(template_id, subject, reference, reminder, partner_ids, trabajador_role_id, empleador_role_id, tag, message, uid, password, models):
-    print('create_signature_request')
     """
     Crea una solicitud de firma basada en un template, firmantes y tipo de documento.
 
@@ -240,7 +265,6 @@ def create_signature_request(template_id, subject, reference, reminder, partner_
     return models.execute_kw(db, uid, password, 'sign.request', 'create', [data])
 
 def procesar_solicitud_firma(data: FirmaRequest):
-    print('procesar_solicitud_firma')
     """
     Orquesta todo el proceso: autenticación, creación de partners, template y solicitud de firma.
 
@@ -271,12 +295,10 @@ def procesar_solicitud_firma(data: FirmaRequest):
                                               partner_ids, trabajador_role_id, empleador_role_id,
                                               data.tag, data.message, uid, password, models)
 
-    print('request_id', request_id)
     return {"status": "success", "request_id": request_id}
 
 
 def obtener_sign_request(id: int):
-    print('obtener_sign_request')
     """
     Obtiene información de la solicitud de firma desde Odoo.
 
@@ -298,13 +320,11 @@ def obtener_sign_request(id: int):
 
     if not result:
         raise ValueError(f"No se encontró la solicitud con ID {id}")
-    print('result', result[0])
 
     return result[0]
 
 
 def traer_documentos_firmados(id: int) -> dict:
-    print('traer_documentos_firmados')
     """
     Obtiene los documentos firmados desde Odoo, en base64.
 

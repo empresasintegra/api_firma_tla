@@ -10,7 +10,6 @@ app = FastAPI()
 
 @app.post("/conexion")
 def solicitud_firma(data: FirmaRequest):
-    print('solicitud_firma')
     """
     Endpoint principal para enviar una solicitud de firma a Odoo.
 
@@ -29,14 +28,12 @@ def solicitud_firma(data: FirmaRequest):
 
 @app.post("/recuperacion_manual")
 def recuperacion_manual(id: int = Query(..., description="ID de la firma a recuperar manualmente")):
-    print('recuperacion_manual', id)
     """
     Recupera manualmente una solicitud de firma y notifica su estado.
     """
     try:
         sign_request = obtener_sign_request(id)
         estado = mapear_estado_firma(sign_request['state'])
-        print('sign_request', sign_request, 'estado', estado)
 
         documentos = traer_documentos_firmados(id) if estado == 'FF' else {}
 
@@ -59,7 +56,6 @@ def recuperacion_manual(id: int = Query(..., description="ID de la firma a recup
 
 @app.post("/recuperacion_webhook")
 def recuperacion_webhook(id: int = Query(..., description="ID de la firma a recuperar por webhook")):
-    print('recuperacion_webhook', id)
     """
     Recupera una solicitud de firma activada por webhook y notifica su estado.
     """
@@ -173,7 +169,6 @@ def edit_tag(id: int = Query(...), nuevo_nombre: str = Query(...)):
 
 @app.post("/estados_firma_odoo")
 def estados_firma_odoo(sign_request_state: str):
-    print('estados_firma_odoo')
     """
     Traduce el estado de una solicitud de firma de Odoo a un código interno.
 
