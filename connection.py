@@ -9,9 +9,10 @@ from models import FirmaRequest
 from utils import vigencia_dias
 
 db = settings.ODOO_DB
+url = settings.ODOO_URL
 username = settings.ODOO_USERNAME
 password = settings.ODOO_PASSWORD
-url = settings.ODOO_URL
+url_notificaciones = settings.URL_NOTIFICACIONES
 
 def authenticate():
     """
@@ -365,22 +366,22 @@ def traer_documentos_firmados(id: int) -> dict:
     return resultado
 
 
-# def notificar_firma(payload: dict):
-#     """
-#     Envía una notificación HTTP con los datos de la firma.
+def notificar_firma(payload: dict):
+    """
+    Envía una notificación HTTP con los datos de la firma.
 
-#     Args:
-#         payload (dict): Datos a enviar en la notificación.
+    Args:
+        payload (dict): Datos a enviar en la notificación.
 
-#     Returns:
-#         str: Mensaje de éxito o lanza error.
-#     """
-#     import requests
+    Returns:
+        str: Mensaje de éxito o lanza error.
+    """
+    import requests
 
-#     headers = {'Content-Type': 'application/json'}
-#     response = requests.post(url_notificaciones, headers=headers, data=json.dumps(payload))
-#     response.raise_for_status()
-#     return "Notificación enviada exitosamente"
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url_notificaciones, headers=headers, data=json.dumps(payload))
+    response.raise_for_status()
+    return "Notificación enviada exitosamente"
 
 
 def cancelar_documento_firma(doc_id: int):

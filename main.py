@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from models import FirmaRequest
 from connection import (procesar_solicitud_firma, obtener_info_firma, obtener_rol_por_id, obtener_tag_por_id, editar_tag,
-                        cancelar_documento_firma, obtener_sign_request, traer_documentos_firmados)
+                        cancelar_documento_firma, obtener_sign_request, traer_documentos_firmados, notificar_firma)
 from utils import mapear_estado_firma
 
 app = FastAPI()
@@ -45,7 +45,7 @@ def recuperacion_manual(id: int = Query(..., description="ID de la firma a recup
             "certificado_pdf": documentos.get("certificado"),
         }
 
-        # notificar_firma(payload)
+        notificar_firma(payload)
         return {"message": "Recuperación manual procesada exitosamente."}
 
     except Exception as e:
@@ -73,7 +73,7 @@ def recuperacion_webhook(id: int = Query(..., description="ID de la firma a recu
             "certificado_pdf": documentos.get("certificado"),
         }
 
-        # notificar_firma(payload)
+        notificar_firma(payload)
         return {"message": "Recuperación webhook procesada exitosamente."}
 
     except Exception as e:

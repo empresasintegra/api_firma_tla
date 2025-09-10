@@ -15,7 +15,8 @@ def mapear_estado_firma(sign_request_state: str) -> str:
 
     Args:
         sign_request_state (str): Estado original de Odoo
-            ('signed', 'refused', 'canceled', 'expired', 'shared', 'sent').
+            ('shared', 'sent', 'signed', 'canceled', 'expired').
+    ODOO Estado (Petición de firma)	Compartido, A firmar, Totalmente firmado, Cancelado, Expirado.
 
     Returns:
         str: Código de estado interno correspondiente:
@@ -27,11 +28,10 @@ def mapear_estado_firma(sign_request_state: str) -> str:
             - 'ND' (No definido)
     """
     mapping = {
+        'shared': 'EF',
+        'sent': 'FT',
         'signed': 'FF',
-        'refused': 'OB',
         'canceled': 'OB',
         'expired': 'EX',
-        'shared': 'EF',
-        'sent': 'FT'
     }
     return mapping.get(sign_request_state, 'ND')  # ND = No definido
