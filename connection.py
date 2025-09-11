@@ -428,51 +428,62 @@ def cancelar_documento_firma(doc_id: int):
     return {"message": "El documento se ha cancelado exitosamente."}
 
 
-def obtener_info_firma(request_id: int):
-    """
-    Obtiene la información detallada de una solicitud de firma (sign.request) y su primer firmante.
-
-    Args:
-        request_id (int): ID de la solicitud de firma en Odoo.
-
-    Returns:
-        dict: Datos del documento y estado del firmante.
-    """
-    uid = authenticate()
-    models = ServerProxy(f'{url}/xmlrpc/2/object')
-
-    # Buscar documento
-    documento = models.execute_kw(
+def buscar_documento(models, uid, request_id):
+    """Busca el documento de firma por su ID."""
+    documentos = models.execute_kw(
         db, uid, password,
         'sign.request', 'search_read',
         [[('id', '=', request_id)]],
         {'fields': [
-            'id', 'reference', 'subject', 'state', 'validity',
-            'request_item_ids', 'create_date', 'completion_date',
-            'message', 'template_id', 'access_token'
+            'id', 'subject', 'reference', 'state', 'active',
+            'display_name', 'nb_wait', 'nb_closed', 'nb_total', 'progress',
+            'validity', 'reminder_enabled', 'reminder', 'last_reminder',
+            'request_item_ids', 'request_item_infos', 'create_date',
+            'completion_date', 'last_action_date', 'template_id', 'access_token'
         ]}
     )
-
-    if not documento:
+    if not documentos:
         raise ValueError(f"No se encontró ningún documento con ID {request_id}")
+    return documentos[0]
 
-    # Obtener estado del primer firmante (opcional)
-    firma_estado = None
-    if documento[0]['request_item_ids']:
-        firma_id = documento[0]['request_item_ids'][0]
-        firma = models.execute_kw(
-            db, uid, password,
-            'sign.request.item', 'search_read',
-            [[('id', '=', firma_id)]],
-            {'fields': ['state']}
-        )
-        if firma:
-            firma_estado = firma[0]['state']
 
-    # Agregar el estado del firmante si existe
-    documento[0]['firma_estado'] = firma_estado
+def obtener_comentario_rechazo(models, uid, request_id):
+    """Busca el mensaje que contiene el comentario de rechazo."""
+    mensajes = models.execute_kw(
+        db, uid, password,
+        'mail.message', 'search_read',
+        [[('res_id', '=', request_id), ('model', '=', 'sign.request')]],
+        {'fields': ['preview']}
+    )
 
-    return documento[0]
+    for mensaje in mensajes:
+        preview = mensaje.get('preview')
+        if preview and 'ha rechazado la firma' in preview:
+            return preview
+    return None
+
+
+def obtener_info_firma(request_id: int):
+    """
+    Obtiene la información detallada de una solicitud de firma en Odoo,
+    incluyendo el comentario de rechazo si existe.
+
+    Returns:
+        dict: Datos del documento de firma, con posible campo 'rechazo_comentario'.
+
+    Raises:
+        ValueError: Si no se encuentra un documento con el ID proporcionado.
+    """
+    uid = authenticate()
+    models = ServerProxy(f'{url}/xmlrpc/2/object')
+
+    documento = buscar_documento(models, uid, request_id)
+    comentario_de_rechazo = obtener_comentario_rechazo(models, uid, request_id)
+
+    return {
+        **documento,
+        'rechazo_comentario': comentario_de_rechazo
+    }
 
 
 def obtener_rol_por_id(role_id: int):
