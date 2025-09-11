@@ -47,6 +47,8 @@ def recuperacion_manual(id: int = Query(..., description="ID de la firma a recup
 
         response_json=notificar_firma(payload)
         return {"data": response_json}
+        notificar_firma(payload)
+        return {"message": "Recuperación manual procesada exitosamente."}
 
     except Exception as e:
         import logging
@@ -73,7 +75,7 @@ def recuperacion_webhook(id: int = Query(..., description="ID de la firma a recu
             "certificado_pdf": documentos.get("certificado"),
         }
 
-        # notificar_firma(payload)
+        notificar_firma(payload)
         return {"message": "Recuperación webhook procesada exitosamente."}
 
     except Exception as e:

@@ -9,9 +9,10 @@ from models import FirmaRequest
 from utils import vigencia_dias
 
 db = settings.ODOO_DB
+url = settings.ODOO_URL
 username = settings.ODOO_USERNAME
 password = settings.ODOO_PASSWORD
-url = settings.ODOO_URL
+url_notificaciones = settings.URL_NOTIFICACIONES
 
 def authenticate():
     """
