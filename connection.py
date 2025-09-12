@@ -360,7 +360,7 @@ def traer_documentos_firmados(id: int) -> dict:
 
     
     for doc in documentos:
-        if 'certificado' in doc['name'].lower():
+        if 'certificate' in doc['name'].lower():
             resultado["certificado"] = doc['datas']
         else:
             resultado["documento"] = doc['datas']
