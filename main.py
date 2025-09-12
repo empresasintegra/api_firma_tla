@@ -45,8 +45,6 @@ def recuperacion_manual(id: int = Query(..., description="ID de la firma a recup
             "certificado_pdf": documentos.get("certificado"),
         }
 
-        response_json=notificar_firma(payload)
-        return {"data": response_json}
         notificar_firma(payload)
         return {"message": "Recuperación manual procesada exitosamente."}
 

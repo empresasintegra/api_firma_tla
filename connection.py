@@ -359,8 +359,11 @@ def traer_documentos_firmados(id: int) -> dict:
     resultado = {"documento": None, "certificado": None}
 
     
-    resultado["certificado"] = documentos[0]['datas']
-    resultado["documento"] = documentos[1]['datas']
+    for doc in documentos:
+        if 'certificado' in doc['name'].lower():
+            resultado["certificado"] = doc['datas']
+        else:
+            resultado["documento"] = doc['datas']
 
     return resultado
 
@@ -378,9 +381,9 @@ def notificar_firma(payload: dict):
      import requests
 
      headers = {'Content-Type': 'application/json'}
-     response = requests.post("http://host.docker.internal:8023/api/firmas/recepcion/", headers=headers, data=json.dumps(payload))
+     response = requests.post(url_notificaciones, headers=headers, data=json.dumps(payload))
      response.raise_for_status()
-     return response.json()
+     return "Notificación enviada exitosamente"
 
 
 def cancelar_documento_firma(doc_id: int):
