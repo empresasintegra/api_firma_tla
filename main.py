@@ -187,3 +187,33 @@ def estados_firma_odoo(sign_request_state: str):
     except Exception as e:
         print("❌ Error en /estados_firma_odoo:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# @app.get("/extra")
+# def extra(id):
+#     """ Endpoint de prueba para obtener datos adicionales desde Odoo. """
+#     from xmlrpc.client import ServerProxy
+#     try:
+#         db='develop'
+#         password='d5kSw]+"Q"31Jdev'
+#         url='https://develop.odoo.com/'
+#         username='desarrollo_firma@empresasintegra.cl'
+#         # Autenticación en Odoo
+#         uid = authenticate()
+#         if uid:
+#             models = ServerProxy('{}/xmlrpc/2/object'.format(url))
+#             test = models.execute_kw(
+#                 db, uid, password,
+#                 'ir.attachment', 'search_read',
+#                 [[('res_id', '=', id)]],
+#                 {'fields': [
+#                     'access_token', 'checksum', 'company_id', 'create_date', 'create_uid', 'datas', 'db_datas', 'description', 'display_name', 'file_size', 'id', 'image_height', 'image_src', 'image_width', 'index_content', 'local_url', 'mimetype', 'name', 'original_id', 'public', 'res_field', 'res_id', 'res_model', 'res_name', 'store_fname', 'type', 'url', 'voice_ids', 'write_date', 'write_uid'
+#                 ]}  # campos seguros
+#             )
+#             # tag_mapping = {tag['name']: tag['id'] for tag in test}
+#             # print('tag_mapping', tag_mapping)
+
+#             return test
+
+#     except Exception as e:
+#         print(e)
