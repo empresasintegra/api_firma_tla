@@ -194,10 +194,9 @@ def estados_firma_odoo(sign_request_state: str):
 #     """ Endpoint de prueba para obtener datos adicionales desde Odoo. """
 #     from xmlrpc.client import ServerProxy
 #     try:
-#         db='develop'
-#         password='d5kSw]+"Q"31Jdev'
-#         url='https://develop.odoo.com/'
-#         username='desarrollo_firma@empresasintegra.cl'
+#         db=''
+#         password='admin'
+#         url='http://'
 #         # Autenticación en Odoo
 #         uid = authenticate()
 #         if uid:
